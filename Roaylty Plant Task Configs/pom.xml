@@ -11,5 +11,7 @@
 
     <artifactId>royaltyplanttask.configs</artifactId>
 
+    <name>Configs</name>
+
 
 </project>

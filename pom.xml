@@ -6,7 +6,23 @@
 
     <groupId>com.sentilabs</groupId>
     <artifactId>royaltyplanttask</artifactId>
+    <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
+    <name>Royalty Plant Task</name>
+    <modules>
+        <module>DB Resources</module>
+        <module>Roaylty Plant Task Configs</module>
+        <module>Royalty Plant Task Helpers</module>
+        <module>API Client</module>
+        <module>Royalty Plant Task Common</module>
+        <module>Royalty Plant Task Server</module>
+    </modules>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.2.5.RELEASE</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
 
 
 </project>

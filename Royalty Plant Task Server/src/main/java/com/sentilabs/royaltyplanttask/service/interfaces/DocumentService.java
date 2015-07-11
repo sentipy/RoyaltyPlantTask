@@ -11,8 +11,10 @@ import java.util.List;
  */
 public interface DocumentService {
 
-    DocumentEntity borrow(BorrowMoneyRequest borrowMoneyRequest, Long clientId) throws Exception;
-    DocumentEntity transfer(TransferMoneyRequest transferMoneyRequest, Long clientId) throws Exception;
-    DocumentEntity getDocumentById(Long documentId) throws Exception;
-    List<DocumentEntity> getDocumentsForAccountId(Long accountId) throws Exception;
+    DocumentEntity borrow(BorrowMoneyRequest borrowMoneyRequest, Long clientId);
+    DocumentEntity transfer(TransferMoneyRequest transferMoneyRequest, Long clientId);
+    DocumentEntity getDocumentById(Long documentId);
+    List<DocumentEntity> getDocumentsForAccountId(Long accountId);
+    List<DocumentEntity> getDocumentsForAccountNumber(String accountNumber);
+    DocumentEntity processDocument(Long documentId);
 }

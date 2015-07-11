@@ -7,15 +7,15 @@ import java.math.BigDecimal;
  */
 public class BorrowMoneyRequest {
 
-    private String account;
+    private String accountNumber;
     private BigDecimal sum;
 
-    public String getAccount() {
-        return account;
+    public String getAccountNumber() {
+        return accountNumber;
     }
 
-    public void setAccount(String account) {
-        this.account = account;
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
     }
 
     public BigDecimal getSum() {

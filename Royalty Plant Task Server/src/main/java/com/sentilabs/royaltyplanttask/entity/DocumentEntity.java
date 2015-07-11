@@ -1,70 +1,47 @@
 package com.sentilabs.royaltyplanttask.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.sentilabs.royaltyplanttask.entity.helper.DocumentStatus;
 
+import javax.persistence.*;
 import java.math.BigDecimal;
 
 /**
  * Created by AMachekhin on 08.07.2015.
  */
+@Entity
+@Table(name = "documents")
 public class DocumentEntity {
 
-    private Long documentId;
-    private String fromAccount;
-    @JsonIgnore
-    private Long fromAccountId;
-    private String toAccount;
-    @JsonIgnore
-    private Long toAccountId;
-    private BigDecimal sum;
-    private String status;
+    @Id
+    @SequenceGenerator(name = "documents_id_seq", sequenceName = "documents_id_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "documents_id_seq")
+    private Long id;
 
-    public Long getDocumentId() {
-        return documentId;
+    @Column(name = "status")
+    private String status = DocumentStatus.CREATED.name();
+
+    @Column(name = "doc_num")
+    private String docNum;
+
+    //@Column(name = "acc_dt")
+    @ManyToOne(targetEntity = AccountEntity.class)
+    @JoinColumn(name = "acc_dt")
+    private AccountEntity debetAccount;
+
+    //@Column(name = "acc_kt")
+    @ManyToOne(targetEntity = AccountEntity.class)
+    @JoinColumn(name = "acc_kt")
+    private AccountEntity creditAccount;
+
+    @Column(name = "doc_sum")
+    private BigDecimal docSum = BigDecimal.ZERO;
+
+    public Long getId() {
+        return id;
     }
 
-    public void setDocumentId(Long documentId) {
-        this.documentId = documentId;
-    }
-
-    public String getFromAccount() {
-        return fromAccount;
-    }
-
-    public void setFromAccount(String fromAccount) {
-        this.fromAccount = fromAccount;
-    }
-
-    public Long getFromAccountId() {
-        return fromAccountId;
-    }
-
-    public void setFromAccountId(Long fromAccountId) {
-        this.fromAccountId = fromAccountId;
-    }
-
-    public String getToAccount() {
-        return toAccount;
-    }
-
-    public void setToAccount(String toAccount) {
-        this.toAccount = toAccount;
-    }
-
-    public Long getToAccountId() {
-        return toAccountId;
-    }
-
-    public void setToAccountId(Long toAccountId) {
-        this.toAccountId = toAccountId;
-    }
-
-    public BigDecimal getSum() {
-        return sum;
-    }
-
-    public void setSum(BigDecimal sum) {
-        this.sum = sum;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getStatus() {
@@ -73,5 +50,49 @@ public class DocumentEntity {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getDocNum() {
+        return docNum;
+    }
+
+    public void setDocNum(String docNum) {
+        this.docNum = docNum;
+    }
+
+    public AccountEntity getDebetAccount() {
+        return debetAccount;
+    }
+
+    public void setDebetAccount(AccountEntity debetAccount) {
+        this.debetAccount = debetAccount;
+    }
+
+    public AccountEntity getCreditAccount() {
+        return creditAccount;
+    }
+
+    public void setCreditAccount(AccountEntity creditAccount) {
+        this.creditAccount = creditAccount;
+    }
+
+    public BigDecimal getDocSum() {
+        return docSum;
+    }
+
+    public void setDocSum(BigDecimal docSum) {
+        this.docSum = docSum;
+    }
+
+    @Override
+    public String toString() {
+        return "DocumentEntity {" +
+                "id=" + id +
+                ", status='" + status + '\'' +
+                ", docNum='" + docNum + '\'' +
+                ", debetAccount=" + debetAccount +
+                ", creditAccount=" + creditAccount +
+                ", docSum='" + docSum + '\'' +
+                '}';
     }
 }

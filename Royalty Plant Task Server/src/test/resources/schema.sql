@@ -6,6 +6,8 @@ CREATE TABLE bank.clients
   PRIMARY KEY (id)
 );
 
+CREATE UNIQUE INDEX ON bank.clients (name);
+
 CREATE TABLE bank.accounts
 (
   id bigint AUTO_INCREMENT NOT NULL,
@@ -13,7 +15,7 @@ CREATE TABLE bank.accounts
   client bigint NOT NULL,
   balance numeric(30,4) NOT NULL DEFAULT 0,
   PRIMARY KEY (id),
-  CONSTRAINT balance_not_negative CHECK (balance >= 0),
+  --CONSTRAINT balance_not_negative CHECK (balance >= 0),
   FOREIGN KEY (client) REFERENCES bank.clients (id) ON UPDATE RESTRICT ON DELETE RESTRICT
 );
 
@@ -31,4 +33,8 @@ CREATE TABLE bank.documents
   PRIMARY KEY (id),
   FOREIGN KEY (acc_dt) REFERENCES bank.accounts (id) ON UPDATE RESTRICT ON DELETE RESTRICT,
   FOREIGN KEY (acc_kt) REFERENCES bank.accounts (id) ON UPDATE RESTRICT ON DELETE RESTRICT
-)
+);
+
+CREATE SEQUENCE clients_id_seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE accounts_id_seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE documents_id_seq START WITH 1 INCREMENT BY 1;
