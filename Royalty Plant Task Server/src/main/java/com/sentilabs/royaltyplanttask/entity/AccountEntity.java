@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 public class AccountEntity {
 
     @Id
-    @SequenceGenerator(name = "accounts_id_seq", sequenceName = "accounts_id_seq")
+    @SequenceGenerator(name = "accounts_id_seq", sequenceName = "accounts_id_seq", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "accounts_id_seq")
     private Long id;
 

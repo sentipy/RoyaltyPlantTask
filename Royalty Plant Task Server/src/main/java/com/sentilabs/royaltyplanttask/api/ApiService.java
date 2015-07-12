@@ -17,11 +17,13 @@ import com.sentilabs.royaltyplanttask.response.ErrorResponse;
 import com.sentilabs.royaltyplanttask.service.interfaces.AccountService;
 import com.sentilabs.royaltyplanttask.service.interfaces.BankUserService;
 import com.sentilabs.royaltyplanttask.service.interfaces.DocumentService;
+import com.sentilabs.royaltyplanttask.utils.UserUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -77,7 +79,7 @@ public class ApiService {
     @RequestMapping(value = "/openAccount", method = RequestMethod.POST)
     public ResponseEntity<AccountDetailResponse> openAccount(OpenAccountRequest openAccountRequest
             , HttpServletRequest httpServletRequest) {
-        long clientId = (long) httpServletRequest.getSession().getAttribute(Constants.SESSION_ATTR_NAME_WITH_CLIENT_ID);
+        long clientId = UserUtils.getCurrentUserId(httpServletRequest);
         openAccountRequest.setClientId(clientId);
         AccountEntity accountEntity = accountService.openAccount(openAccountRequest);
         AccountDetailResponse accountDetailResponse = Converter.convert(accountEntity);
@@ -86,7 +88,7 @@ public class ApiService {
 
     @RequestMapping(value = "/getAccountsForCurrentClient", method = RequestMethod.POST)
     public ResponseEntity<List<AccountDetailResponse>> getAccounts(HttpServletRequest httpServletRequest) {
-        long clientId = (long) httpServletRequest.getSession().getAttribute(Constants.SESSION_ATTR_NAME_WITH_CLIENT_ID);
+        long clientId = UserUtils.getCurrentUserId(httpServletRequest);
         List<AccountEntity> accountEntities = accountService.getAccountsForClientId(clientId);
         List<AccountDetailResponse> accountDetailResponses = Converter.convertAccountEntitiesListToAccountDetailResponses(accountEntities);
         return new ResponseEntity<>(accountDetailResponses, HttpStatus.OK);
@@ -95,7 +97,17 @@ public class ApiService {
     @RequestMapping(value = "/borrow", method = RequestMethod.POST)
     public ResponseEntity<DocumentDetailResponse> borrow(BorrowMoneyRequest borrowMoneyRequest
             , HttpServletRequest httpServletRequest) {
-        long clientId = (long) httpServletRequest.getSession().getAttribute(Constants.SESSION_ATTR_NAME_WITH_CLIENT_ID);
+        long clientId = UserUtils.getCurrentUserId(httpServletRequest);
+        //TODO: check that account really belongs to client
+        DocumentEntity documentEntity = documentService.borrow(borrowMoneyRequest, clientId);
+        DocumentDetailResponse documentDetailResponse = Converter.convert(documentEntity);
+        return new ResponseEntity<>(documentDetailResponse, HttpStatus.CREATED);
+    }
+
+    @RequestMapping(value = "/borrow", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DocumentDetailResponse> borrowWithJSON(@RequestBody BorrowMoneyRequest borrowMoneyRequest
+            , HttpServletRequest httpServletRequest) {
+        long clientId = UserUtils.getCurrentUserId(httpServletRequest);
         //TODO: check that account really belongs to client
         DocumentEntity documentEntity = documentService.borrow(borrowMoneyRequest, clientId);
         DocumentDetailResponse documentDetailResponse = Converter.convert(documentEntity);
@@ -105,7 +117,7 @@ public class ApiService {
     @RequestMapping(value = "/transfer", method = RequestMethod.POST)
     public ResponseEntity<DocumentDetailResponse> transfer(TransferMoneyRequest transferMoneyRequest
             , HttpServletRequest httpServletRequest) {
-        long clientId = (long) httpServletRequest.getSession().getAttribute(Constants.SESSION_ATTR_NAME_WITH_CLIENT_ID);
+        long clientId = UserUtils.getCurrentUserId(httpServletRequest);
         //TODO: check that account really belongs to client
         DocumentEntity documentEntity = documentService.transfer(transferMoneyRequest, clientId);
         DocumentDetailResponse documentDetailResponse = Converter.convert(documentEntity);
@@ -114,7 +126,7 @@ public class ApiService {
 
     @RequestMapping(value = "/getDocumentsForAccountNumber", method = RequestMethod.POST)
     public ResponseEntity<List<DocumentDetailResponse>> getDocumentsForAccount(HttpServletRequest httpServletRequest) {
-        long clientId = (long) httpServletRequest.getSession().getAttribute(Constants.SESSION_ATTR_NAME_WITH_CLIENT_ID);
+        long clientId = UserUtils.getCurrentUserId(httpServletRequest);
         //TODO: check that account really belongs to client
         String accountNumber = httpServletRequest.getParameter("accountNumber");
         if (StringUtils.isEmpty(accountNumber)) {

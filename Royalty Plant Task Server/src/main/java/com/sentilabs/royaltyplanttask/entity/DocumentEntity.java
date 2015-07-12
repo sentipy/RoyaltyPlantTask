@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 public class DocumentEntity {
 
     @Id
-    @SequenceGenerator(name = "documents_id_seq", sequenceName = "documents_id_seq")
+    @SequenceGenerator(name = "documents_id_seq", sequenceName = "documents_id_seq", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "documents_id_seq")
     private Long id;
 

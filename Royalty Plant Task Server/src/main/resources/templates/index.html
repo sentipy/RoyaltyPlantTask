@@ -2,10 +2,30 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head lang="en">
     <meta charset="UTF-8" />
-    <title>HELLO</title>
+    <title>Welcome</title>
+
+    <link th:href="@{/css/ui-grid-unstable.min.css}" rel="stylesheet" />
+    <link rel="stylesheet" href="https:////maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css"/>
+    <link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet"/>
+    <link th:href="@{/css/bankapp.css}" rel="stylesheet" />
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.min.js"></script>
+    <script th:src="@{/js/ui-bootstrap-tpls-0.13.0.min.js}"></script>
+    <script th:src="@{/js/ui-grid-unstable.min.js}"></script>
+    <script th:src="@{/js/bankapp.js}"></script>
 </head>
-<body>
-<!--@thymesVar id="message" type="String"-->
-<p th:text="${message}"></p>
+<body ng-app="BankApp">
+    <!--@thymesVar id="username" type="String"-->
+    <p th:text="|Hello, ${username}|"></p>
+    <div ng-controller="BankAppCtrl">
+        <button type="button" ng-click="openAccount()">Open account</button>
+        <div id="accountsLoading" ng-show="accountsLoading" class="accountsGrid">
+            Loading accounts <i class="fa fa-refresh fa-spin"></i>
+        </div>
+        <div id="accountsGrid" ui-grid="accountsGrid"
+             ng-hide="accountsLoading"
+             class="accountsGrid"></div>
+        <button type="button" ng-click="refreshAccounts()" ng-disabled="accountsLoading">Refresh accounts</button>
+    </div>
 </body>
 </html>
