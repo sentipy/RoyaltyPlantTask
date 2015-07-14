@@ -173,7 +173,7 @@ public class AccountDAOImpl implements AccountDAO {
     @Override
     public void lockRowInDatabaseById(Long accountId) {
         Session session = sessionFactory.getCurrentSession();
-        Query query = session.createSQLQuery("select * from accounts a where a.id = :accountId");
+        Query query = session.createSQLQuery("select * from accounts a where a.id = :accountId for update nowait");
         query.setParameter("accountId", accountId);
         query.uniqueResult();
     }
@@ -181,7 +181,7 @@ public class AccountDAOImpl implements AccountDAO {
     @Override
     public void lockRowInDatabaseByAccountNumber(String accountNumber) {
         Session session = sessionFactory.getCurrentSession();
-        Query query = session.createSQLQuery("select * from accounts a where a.account = :accountNumber");
+        Query query = session.createSQLQuery("select * from accounts a where a.account = :accountNumber for update nowait");
         query.setParameter("accountNumber", accountNumber);
         query.uniqueResult();
     }

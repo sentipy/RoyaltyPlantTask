@@ -9,19 +9,21 @@ import com.sentilabs.royaltyplanttask.service.interfaces.DocumentService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 
 /**
  * Created by sentipy on 11/07/15.
  */
 @Component
-public class DocumentProcessor {
+public class DocumentProcessor implements IDocumentProcessor {
 
     private static Logger logger = LogManager.getLogger(DocumentProcessor.class);
 
@@ -31,7 +33,7 @@ public class DocumentProcessor {
     @Autowired
     private DocumentService documentService;
 
-    @Scheduled(fixedDelay = 10000)
+    @Override
     public void processDocuments() {
         while (true) {
             Pageable pageable = new PageRequest(0, 10); //TODO: to take from parameters;

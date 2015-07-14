@@ -1,6 +1,7 @@
 package com.sentilabs.royaltyplanttask.service.impl;
 
 import com.sentilabs.royaltyplanttask.dao.interfaces.AccountDAO;
+import com.sentilabs.royaltyplanttask.dao.interfaces.DocumentDAO;
 import com.sentilabs.royaltyplanttask.entity.AccountEntity;
 import com.sentilabs.royaltyplanttask.entity.DocumentEntity;
 import com.sentilabs.royaltyplanttask.entity.helper.DocumentStatus;
@@ -41,6 +42,9 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Autowired
     private AccountDAO accountDAO;
+
+    @Autowired
+    private DocumentDAO documentDAO;
 
     @Autowired
     private DocumentRepository documentRepository;
@@ -219,10 +223,17 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     @Transactional
     public DocumentEntity processDocument(Long documentId) {
+        if (!documentDAO.lockRowInDatabaseById(documentId)) {
+            return null;
+        }
         DocumentEntity documentEntity = this.getDocumentById(documentId);
         if (documentEntity == null) {
             return null;
         }
+        if (!documentEntity.getStatus().equals(DocumentStatus.CREATED.name())) {
+            return null;
+        }
+
         List<String> accountsNumbers = new ArrayList<>();
         accountsNumbers.add(documentEntity.getDebetAccount().getAccount());
         accountsNumbers.add(documentEntity.getCreditAccount().getAccount());
