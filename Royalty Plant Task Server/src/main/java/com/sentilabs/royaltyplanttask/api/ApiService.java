@@ -124,6 +124,16 @@ public class ApiService {
         return new ResponseEntity<>(documentDetailResponse, HttpStatus.CREATED);
     }
 
+    @RequestMapping(value = "/transfer", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DocumentDetailResponse> transferWithJSON(@RequestBody TransferMoneyRequest transferMoneyRequest
+            , HttpServletRequest httpServletRequest) {
+        long clientId = UserUtils.getCurrentUserId(httpServletRequest);
+        //TODO: check that account really belongs to client
+        DocumentEntity documentEntity = documentService.transfer(transferMoneyRequest, clientId);
+        DocumentDetailResponse documentDetailResponse = Converter.convert(documentEntity);
+        return new ResponseEntity<>(documentDetailResponse, HttpStatus.CREATED);
+    }
+
     @RequestMapping(value = "/getDocumentsForAccountNumber", method = RequestMethod.POST)
     public ResponseEntity<List<DocumentDetailResponse>> getDocumentsForAccount(HttpServletRequest httpServletRequest) {
         long clientId = UserUtils.getCurrentUserId(httpServletRequest);

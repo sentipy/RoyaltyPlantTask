@@ -24,7 +24,17 @@ public class DocumentDAOImpl implements DocumentDAO {
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public boolean lockRowInDatabaseById(Long documentId) {
-        MapSqlParameterSource map = new MapSqlParameterSource()
+        Session session = sessionFactory.getCurrentSession();
+        Query query = session.createSQLQuery("select * from documents d where d.id = :documentId for update nowait");
+        query.setParameter("documentId", documentId);
+        try {
+            query.list();
+        }
+        catch (Throwable t) {
+            return false;
+        }
+        return true;
+        /*MapSqlParameterSource map = new MapSqlParameterSource()
                 .addValue("documentId", documentId);
         try {
             namedParameterJdbcOperations
@@ -34,14 +44,6 @@ public class DocumentDAOImpl implements DocumentDAO {
         catch (Throwable t) {
             return false;
         }
-        return true;
-        /*Session session = sessionFactory.getCurrentSession();
-        //Query query = session.createSQLQuery("select * from documents d where d.id = :documentId for update nowait");
-        Query query = session.createQuery("from DocumentEntityBase d where d.id = :documentId");
-        query.setLockMode("d", LockMode.PESSIMISTIC_WRITE);
-        //query.setLockOptions(LockOptions.UPGRADE);
-        query.setParameter("documentId", documentId);
-        Object o = query.uniqueResult();
-        int a = 5;*/
+        return true;*/
     }
 }

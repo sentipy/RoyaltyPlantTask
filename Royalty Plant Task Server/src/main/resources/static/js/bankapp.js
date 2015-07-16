@@ -20,7 +20,7 @@ app.controller('BankAppCtrl', ['$scope', '$http', '$modal', function ($scope, $h
                         '</button>' +
                         '<ul class="dropdown-menu" role="menu">' +
                             '<li><a href="#" ng-click="grid.appScope.borrowMoney(row.entity.accountNumber)">Borrow</a></li>' +
-                            '<li><a href="#">Transfer</a></li>' +
+                            '<li><a href="#" ng-click="grid.appScope.transferMoney(row.entity.accountNumber)">Transfer</a></li>' +
                             '<li class="divider"></li>' +
                             '<li><a href="#">View documents</a></li>' +
                         '</ul>' +
@@ -57,6 +57,24 @@ app.controller('BankAppCtrl', ['$scope', '$http', '$modal', function ($scope, $h
                 animation: true,
                 templateUrl: 'angularjsTemplates/borrowMoney.html',
                 controller: 'BorrowMoneyCtrl',
+                backdrop: 'static',
+                resolve: {
+                    accountNumber: function() { return accountNumber}
+                }
+            });
+
+            openAccountInstance.result.then(function () {
+                $scope.refreshAccounts();
+            }, function () {
+
+            });
+        };
+
+        $scope.transferMoney = function(accountNumber) {
+            var openAccountInstance = $modal.open({
+                animation: true,
+                templateUrl: 'angularjsTemplates/transferMoney.html',
+                controller: 'TransferMoneyCtrl',
                 backdrop: 'static',
                 resolve: {
                     accountNumber: function() { return accountNumber}
@@ -116,6 +134,32 @@ app.controller('BorrowMoneyCtrl', function ($scope, $modalInstance, $http, accou
             return;
         }
         $http.post("/api/borrow", {accountNumber: $scope.accountNumber, sum: $scope.sum})
+            .success(function(data, status, headers, config) {
+                $modalInstance.close();
+            })
+            .error(function(data, status, headers, config) {
+                alert('Failed to borrow money!');
+            });
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+});
+
+app.controller('TransferMoneyCtrl', function ($scope, $modalInstance, $http, accountNumber) {
+
+    $scope.accountNumber = accountNumber;
+    $scope.sum = 0;
+    $scope.errorText = "";
+    $scope.toAccount = "";
+
+    $scope.ok = function () {
+        if (isNaN($scope.sum)) {
+            $scope.errorText = "Please set correct number";
+            return;
+        }
+        $http.post("/api/transfer", {fromAccount: $scope.accountNumber, toAccount: $scope.toAccount, sum: $scope.sum})
             .success(function(data, status, headers, config) {
                 $modalInstance.close();
             })

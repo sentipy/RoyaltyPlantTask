@@ -2,16 +2,17 @@ package com.sentilabs.royaltyplanttask.config;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import org.hibernate.SessionFactory;
-import org.hibernate.boot.registry.StandardServiceRegistry;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.dialect.Dialect;
-import org.hibernate.jpa.HibernateEntityManagerFactory;
+import org.hibernate.jpa.HibernatePersistenceProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
+import org.springframework.orm.hibernate4.HibernateTransactionManager;
+import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
@@ -21,6 +22,8 @@ import javax.sql.DataSource;
  */
 
 @Configuration
+//@EnableJpaRepositories(basePackages = "com.sentilabs.royaltyplanttask.repository")
+//@EntityScan("com.sentilabs.royaltyplanttask.entity")
 @EnableTransactionManagement
 @PropertySource("classpath:appConfig.properties")
 public class DatasourceConfigurer {
@@ -38,8 +41,11 @@ public class DatasourceConfigurer {
     @Value("${hibernate.hbm2ddl.auto}")
     private String hbm2ddlAuto;
 
+    @Autowired
+    private Environment environment;
 
-    @Bean
+
+    /*@Bean
     @Profile("!inmemory")
     public DataSource configurePostgreSQLDataSource() {
         HikariConfig config = new HikariConfig();
@@ -62,42 +68,61 @@ public class DatasourceConfigurer {
         //config.addDataSourceProperty("password", "sa");
 
         return new HikariDataSource(config);
-    }
+    }*/
 
-    @Bean(name="sessionFactory")
-    public SessionFactory sessionFactory(HibernateEntityManagerFactory factory) {
-        SessionFactory sessionFactory = factory.getSessionFactory();
-        return sessionFactory;
-        /*org.hibernate.cfg.Configuration configuration = new org.hibernate.cfg.Configuration()
-                .setProperty("hibernate.current_session_context_class",
-                        "thread")
-                .setProperty("hibernate.dialect", dialect)
-                .setProperty("hibernate.current_session_context_class", "org.springframework.orm.hibernate4.SpringSessionContext")
-                .setProperty("packagesToScan", "com.sentilabs.royaltyplanttask.entity")
-                ;
-        StandardServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder().applySettings(
-                configuration.getProperties()).build();
-        return configuration.buildSessionFactory(serviceRegistry);*/
+    @Bean
+    public DataSource dataSource() {
+        HikariConfig config = new HikariConfig();
+        if (environment.acceptsProfiles("inmemory")) {
+            config.setDataSourceClassName("org.h2.jdbcx.JdbcDataSource");
+            config.setConnectionTestQuery("VALUES 1");
+            config.addDataSourceProperty("URL", "jdbc:h2:mem:bank;DB_CLOSE_ON_EXIT=FALSE;INIT=CREATE SCHEMA IF NOT EXISTS bank\\;SET SCHEMA bank");
+            config.addDataSourceProperty("user", "sa");
+        }
+        else {
+            config.setDriverClassName(driver);
+            config.setJdbcUrl(url);
+            config.setUsername(username);
+            config.setPassword(password);
+        }
+        return new HikariDataSource(config);
     }
 
     /*@Bean
-    public LocalContainerEntityManagerFactoryBean configureEntityManagerFactory() {
-        LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
-        entityManagerFactoryBean.setDataSource(configureH2DataSource());
-        //entityManagerFactoryBean.setPackagesToScan("${package}");
-        entityManagerFactoryBean.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
+    public HibernateTransactionManager transactionManager() {
+        HibernateTransactionManager transactionManager = new HibernateTransactionManager();
+        transactionManager.setSessionFactory(sessionFactory().getObject());
+        return transactionManager;
+    }*/
 
-        Properties jpaProperties = new Properties();
-        //jpaProperties.put(org.hibernate.cfg.Environment.DIALECT, dialect);
-        jpaProperties.put(org.hibernate.cfg.Environment.HBM2DDL_AUTO, hbm2ddlAuto);
-        entityManagerFactoryBean.setJpaProperties(jpaProperties);
-
-        return entityManagerFactoryBean;
+    public JpaTransactionManager transactionManager() {
+        JpaTransactionManager transactionManager = new JpaTransactionManager();
+        transactionManager.setDataSource(dataSource());
+        transactionManager.setEntityManagerFactory(entityManagerFactory().getObject());
+        return transactionManager;
     }
 
     @Bean
-    public PlatformTransactionManager annotationDrivenTransactionManager() {
-        return new JpaTransactionManager();
-    }*/
+    public LocalSessionFactoryBean sessionFactory() {
+        LocalSessionFactoryBean localSessionFactoryBean = new LocalSessionFactoryBean();
+        localSessionFactoryBean.setDataSource(dataSource());
+        localSessionFactoryBean.setPackagesToScan("com.sentilabs.royaltyplanttask.entity");
+        return localSessionFactoryBean;
+        /*if (entityManagerFactory.unwrap(SessionFactory.class) == null) {
+            throw new NullPointerException("factory is not a hibernate factory");
+        }
+        return entityManagerFactory.unwrap(SessionFactory.class);*/
+    }
+
+    @Bean
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+        LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
+        localContainerEntityManagerFactoryBean.setPackagesToScan("com.sentilabs.royaltyplanttask.entity");
+        localContainerEntityManagerFactoryBean.setDataSource(dataSource());
+        HibernatePersistenceProvider hibernatePersistenceProvider = new HibernatePersistenceProvider();
+        localContainerEntityManagerFactoryBean.setPersistenceProvider(hibernatePersistenceProvider);
+
+        return localContainerEntityManagerFactoryBean;
+    }
 
 }
